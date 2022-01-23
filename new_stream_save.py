@@ -162,12 +162,12 @@ def insert_into_db_and_download(cursor, db, submission, reddit):
 
 
 def load_json():
-        if not os.path.isfile("credentials.json"):
-            json_obj = {}
-        else:
-            with open("credentials.json", "r") as f:
-                json_obj = json.loads(f.read())
-        return json_obj
+    if not os.path.isfile("credentials.json"):
+        json_obj = {}
+    else:
+        with open("credentials.json", "r") as f:
+            json_obj = json.loads(f.read())
+    return json_obj
 
 
 def main():
