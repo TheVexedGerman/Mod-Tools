@@ -1,0 +1,7 @@
+beautifulsoup4
+numpy
+opencv-python
+requests
+praw
+psycopg2-binary
+youtube_dl
