@@ -7,4 +7,4 @@ RUN git clone https://github.com/TheVexedGerman/Mod-Tools.git .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY praw.ini credentials.json ./
 
-CMD [ "bash", "/home/python/start.sh"]
+CMD [ "bash", "/home/python/new_stream_save_start.sh"]
