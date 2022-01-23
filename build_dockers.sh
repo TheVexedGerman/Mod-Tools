@@ -6,6 +6,7 @@ imagePrefix="animemes-"
 imageNames=(
     "new-stream-save"
     "new-stream-comment-automod-save"
+    "modque-stream"
     )
 # imageName=new-stream-save
 dateTag="$(date +%Y-%m-%d-%H%M)"
