@@ -5,6 +5,6 @@ WORKDIR /home/python
 RUN git clone https://github.com/TheVexedGerman/Mod-Tools.git .
 
 RUN pip install --no-cache-dir -r requirements.txt
-COPY praw.ini postgres_credentials.py ./
+COPY praw.ini credentials.json ./
 
 CMD [ "bash", "/home/python/start.sh"]
