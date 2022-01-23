@@ -1,5 +1,9 @@
 FROM localhost:6880/reddit-bots/3.9-buster-opencv
 
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /home/python
 
 RUN git clone https://github.com/TheVexedGerman/Mod-Tools.git .
