@@ -1,4 +1,5 @@
 import json
+import uuid
 import requests
 import praw
 import psycopg2
@@ -31,6 +32,15 @@ def hash(image):
     return diff.astype(int).flatten()
 
 def get_opencv_img_from_buffer(buffer):
+    if buffer[:3] == b'GIF':
+        name = str(uuid.uuid4())
+        open(f"/tmp/{name}.gif", 'wb').write(buffer)
+        cap = cv.VideoCapture(f"/tmp/{name}.gif")
+        os.remove(f"/tmp/{name}.gif")
+        ret, image = cap.read()
+        cap.release()
+        if ret:
+            return image
     bytes_as_np_array = np.frombuffer(buffer, dtype=np.uint8)
     return cv.imdecode(bytes_as_np_array, cv.IMREAD_COLOR)
 
