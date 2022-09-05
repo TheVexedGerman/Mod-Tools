@@ -68,7 +68,7 @@ def main():
                 print(traceback.format_exc())
         print(comment.id)
         # nss.check_previous_sub_participation(comment, cursor)
-        # assign_team(comment, cursor, db)
+        assign_team(comment, cursor, db)
 
     cursor.close()
     db.close()
