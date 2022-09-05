@@ -27,6 +27,22 @@ def load_json():
             json_obj = json.loads(f.read())
     return json_obj
 
+def assign_team(comment, cursor, db_conn):
+    if comment.parent_id not in ['t3_x6nzyf', 't1_in7uew2']:
+        return
+    if 'sachi' in comment.body.lower():
+        team = "Sachi"
+    elif 'snek' in comment.body.lower() or 'snake' in comment.body.lower():
+        team = "Snake"
+    else:
+        return
+    cursor.execute("SELECT team FROM user_teams WHERE author = %s", (str(comment.author),))
+    exists = cursor.fetchone()
+    if exists:
+        return
+    cursor.execute("INSERT INTO user_teams (author, team) VALUES (%s, %s)", (str(comment.author), team))
+    db_conn.commit()
+    comment.reply(f"You've been added to Team {team}")
 
 def main():
     creds = load_json()
@@ -52,6 +68,7 @@ def main():
                 print(traceback.format_exc())
         print(comment.id)
         # nss.check_previous_sub_participation(comment, cursor)
+        # assign_team(comment, cursor, db)
 
     cursor.close()
     db.close()

@@ -10,6 +10,7 @@ import cv2 as cv
 from bs4 import BeautifulSoup
 import os
 import traceback
+import random
 
 
 def authenticate():
@@ -115,6 +116,49 @@ def check_previous_sub_participation(submission, cursor):
         return False
 
 
+def check_for_team_and_assign_flair(cursor, db, submission, reddit):
+    cursor.execute("SELECT team, power_up FROM user_teams WHERE author = %s", (str(submission.author),))
+    team_exists = cursor.fetchone()
+    cursor.execute("SELECT sum(CASE WHEN team = 'Sachi' THEN 1 ELSE 0 END), sum(CASE WHEN team = 'Snake' THEN 1 ELSE 0 END) FROM user_teams")
+    current_team_numbers = cursor.fetchone()
+    if team_exists:
+        team = team_exists[0]
+    else:
+        # use the inverse of the current team members are weight to equalize the teams
+        team = random.choices(['Sachi', 'Snake'], weights=[current_team_numbers[1], current_team_numbers[0]])[0]
+        cursor.execute("INSERT INTO user_teams (author, team) VALUES (%s, %s)", (str(submission.author), team))
+        db.commit()
+        footer = "\n\n---\n\nWe are currently holding an Idol contest Event and everyone is joining a fandom. [Read more details here](https://old.reddit.com/r/Animemes/comments/x6nzyf/_/in7uew2/)"
+        reply_text = "Welcome to the Sachi fandom /u/%%author%%! We are going to show Snek what it truly means to be an idol together, once and for all! %%footer%%".replace('%%footer%%', footer)
+        if team == 'Snake':
+            submission = reddit.submission(submission.id)
+            reply_text = "Welcome to the Snek fandom, recruit /u/%%author%%. Better meme up so that we can collect more votes than Sachi. Remember, sting like a snake, vore like a snake. %%footer%%".replace('%%footer%%', footer)
+        reply = submission.reply(reply_text.replace('%%author%%', str(submission.author)))
+        reply.mod.distinguish(how="yes", sticky=True)
+    if team == 'Sachi':
+        flair_id = '317b1648-2d4c-11ed-8ec2-e2ac532fe8c9'
+    elif team == 'Snake':
+        flair_id = '37e1f81c-2d4c-11ed-b53d-deeb480c3363'
+    submission.flair.select(flair_id)
+    # Ganbare award replies
+    if team_exists and team_exists[1] == 'Ganbare':
+        if team == 'Snake':
+            submission = reddit.submission(submission.id)
+            message = random.choice([
+                "Keep up the good work recruit /u/%%author%%. We've got this!",
+                "With you on our side /u/%%author%% victory is all but assured! Keep it up.",
+                "Team Sachi's power of friendship is nothing compared to our team spirit /u/%%author%%! Fight on!"
+                ])
+        if team == 'Sachi':
+            message = random.choice([
+                "Ganbare /u/%%author%% -kun. We can do this!",
+                "With posts like these we just can't lose. I believe in you /u/%%author%% <3",
+                "Team Snake's team spirit will cruble when faced with our power of friendship /u/%%author%%!"
+            ])
+        reply = submission.reply(message.replace('%%author%%', str(submission.author)))
+        reply.mod.distinguish(how="yes", sticky=True)
+
+
 def insert_into_db_and_download(cursor, db, submission, reddit):
     cursor.execute("insert into posts (author, created_utc, distinguished, edited, id, is_self, link_flair_text, locked, name, num_comments, over_18, score, selftext, spoiler, stickied, subreddit, title, url, permalink) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (id) DO NOTHING", (submission.author.name, convert_time(submission.created_utc), submission.distinguished, convert_time(submission.edited), submission.id, submission.is_self, submission.link_flair_text, submission.locked, submission.name, submission.num_comments, submission.over_18, submission.score, submission.selftext, submission.spoiler, submission.stickied, submission.subreddit.display_name, submission.title, submission.url, submission.permalink))
     db.commit()
@@ -183,6 +227,10 @@ def load_json():
 def main():
     creds = load_json()
     reddit = authenticate()
+    snake_reddit = praw.Reddit(
+        'snekmod'
+    )
+    print("Authenticated as {}".format(snake_reddit.user.me()))
     db = psycopg2.connect(
         host = creds['db_host'],
         database = creds['db_database'],
@@ -198,6 +246,7 @@ def main():
             continue
         insert_into_db_and_download(cursor, db, submission, reddit)
         # check_previous_sub_participation(submission, cursor)
+        check_for_team_and_assign_flair(cursor, db, submission, snake_reddit)
     cursor.close()
     db.close()
 
