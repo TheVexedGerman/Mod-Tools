@@ -28,7 +28,7 @@ def load_json():
     return json_obj
 
 def assign_team(comment, cursor, db_conn):
-    if comment.parent_id not in ['t3_x6nzyf', 't1_in7uew2']:
+    if comment.parent_id not in ['t3_x6nzyf', 't1_in7uew2', 't3_x8eb7q', 't1_inhqenv']:
         return
     if 'sachi' in comment.body.lower():
         team = "Sachi"
@@ -42,7 +42,7 @@ def assign_team(comment, cursor, db_conn):
         return
     cursor.execute("INSERT INTO user_teams (author, team) VALUES (%s, %s)", (str(comment.author), team))
     db_conn.commit()
-    comment.reply(f"You've been added to Team {team}")
+    comment.reply(f"You are now a {team} Stan")
 
 def main():
     creds = load_json()
