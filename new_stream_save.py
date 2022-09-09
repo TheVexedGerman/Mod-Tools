@@ -128,7 +128,7 @@ def check_for_team_and_assign_flair(cursor, db, submission, reddit):
         team = random.choices(['Sachi', 'Snake'], weights=[current_team_numbers[1], current_team_numbers[0]])[0]
         cursor.execute("INSERT INTO user_teams (author, team) VALUES (%s, %s)", (str(submission.author), team))
         db.commit()
-        footer = "\n\n---\n\nWe are currently holding an Idol contest Event and everyone is joining a fandom. [Read more details here](https://old.reddit.com/r/Animemes/comments/x6nzyf/_/in7uew2/)"
+        footer = "\n\n---\n\nWe are currently holding an Idol contest Event and everyone is joining a fandom. [Read more details here](https://www.reddit.com/r/Animemes/comments/xa8awa/_/ins905s/)"
         reply_text = "Welcome to the Sachi fandom /u/%%author%%! We are going to show Snek what it truly means to be an idol together, once and for all! %%footer%%".replace('%%footer%%', footer)
         if team == 'Snake':
             submission = reddit.submission(submission.id)
