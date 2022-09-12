@@ -28,7 +28,7 @@ def load_json():
     return json_obj
 
 def assign_team(comment, cursor, db_conn):
-    if comment.parent_id not in ['t3_x6nzyf', 't1_in7uew2', 't3_x8eb7q', 't1_inhqenv', 't3_xa8awa', 't1_ins905s']:
+    if comment.parent_id not in ['t3_x6nzyf', 't1_in7uew2', 't3_x8eb7q', 't1_inhqenv', 't3_xa8awa', 't1_ins905s', 't3_xco973', 't3_io6889l']:
         return
     if 'sachi' in comment.body.lower():
         team = "Sachi"
