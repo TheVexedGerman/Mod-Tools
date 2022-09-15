@@ -246,7 +246,7 @@ def main():
             continue
         insert_into_db_and_download(cursor, db, submission, reddit)
         # check_previous_sub_participation(submission, cursor)
-        check_for_team_and_assign_flair(cursor, db, submission, snake_reddit)
+        # check_for_team_and_assign_flair(cursor, db, submission, snake_reddit)
     cursor.close()
     db.close()
 
