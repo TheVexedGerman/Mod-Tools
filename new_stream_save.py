@@ -164,10 +164,11 @@ def insert_into_db_and_download(cursor, db, submission, reddit):
     db.commit()
     if not submission.is_self:
         image = None
-        if (submission.url[-3:] == 'png' or submission.url[-3:] == 'jpg' or submission.url[-3:] == 'gif'):
+        ext = submission.url.split('.')[-1]
+        if ext in ['jpg', 'jpeg', 'png', 'gif']:
             ensure_path_validity(submission.id)
             image = requests.get(submission.url)
-            open(f"images/{submission.id[:3]}/{submission.id}.{submission.url[-3:]}", 'wb').write(image.content)
+            open(f"images/{submission.id[:3]}/{submission.id}.{ext}", 'wb').write(image.content)
         elif submission.url[8:17] == 'v.redd.it':
             download_vreddit(submission)
             image = requests.get(submission.preview['images'][0]['source']['url'])
@@ -175,6 +176,14 @@ def insert_into_db_and_download(cursor, db, submission, reddit):
             ensure_path_validity(submission.id)
             image = requests.get(imgur_to_direct_link(submission.url))
             open(f"images/{submission.id[:3]}/{submission.id}.{submission.url[-3:]}", 'wb').write(image.content)
+        elif 'reddit.com/gallery' in submission.url:
+            pass
+
+        if not image:
+            ensure_path_validity(submission.id)
+            image = requests.get(submission.thumbnail)
+            open(f"images/{submission.id[:3]}/{submission.id}_prev.{'jpg' if image.headers['content-type'] == 'image/jpeg' else 'png'}", 'wb').write(image.content)
+        img = get_opencv_img_from_buffer(image.content)
 
         if not image:
             ensure_path_validity(submission.id)
