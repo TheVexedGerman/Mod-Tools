@@ -1,4 +1,4 @@
-FROM localhost:6880/reddit-bots/3.9-buster-opencv
+FROM localhost:6880/reddit-bots/3.11-buster-opencv
 
 RUN apt-get update && apt-get install -y \
     ffmpeg \
