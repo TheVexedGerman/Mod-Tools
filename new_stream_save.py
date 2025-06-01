@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 import os
 import traceback
 import random
+import subprocess
 
 
 def authenticate():
@@ -185,11 +186,12 @@ def insert_into_db_and_download(cursor, db, submission, reddit):
             open(f"images/{submission.id[:3]}/{submission.id}_prev.{'jpg' if image.headers['content-type'] == 'image/jpeg' else 'png'}", 'wb').write(image.content)
         img = get_opencv_img_from_buffer(image.content)
 
-        if not image:
-            ensure_path_validity(submission.id)
-            image = requests.get(submission.thumbnail)
-            open(f"images/{submission.id[:3]}/{submission.id}_prev.{'jpg' if image.headers['content-type'] == 'image/jpeg' else 'png'}", 'wb').write(image.content)
-        img = get_opencv_img_from_buffer(image.content)
+        # scale smaller proxy
+        if img is not None:
+            # resized = cv.resize(img, (64, 64), interpolation=cv.INTER_LANCZOS4)
+            # looks a bit different to imagemagic but hopefully not too bad
+            resized = cv.resize(img, (64, 64), interpolation=cv.INTER_AREA)
+            cv.imwrite(f'64x/{submission.id}.jpg', resized)
 
         hash_array = hash(img)
         if hash_array is not None:
@@ -242,6 +244,7 @@ def main():
     print("Authenticated as {}".format(snake_reddit.user.me()))
     db = psycopg2.connect(
         host = creds['db_host'],
+        # port = creds['db_port'],
         database = creds['db_database'],
         user = creds['db_user'],
         password = creds['db_password']
